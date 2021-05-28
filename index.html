@@ -25,35 +25,34 @@
   <h1 class="font-weight-bolder text-center text-dark m-3">六都天氣預測資料</h1>
   <h3 class="font-weight-bolder text-center text-secondary m-2">各地一週氣溫預報</h3>
   <div class="container">
-    <div class="bar row my-3 mx-0 mx-md-2 mx-xl-5">
-      <button class="col btn btn-info mx-1" onclick="toggleChart('chartTemp6')">六度均溫預報</button>
-      <button class="col btn btn-info mx-1" onclick="getChart('chartTP',9)">台北市</button>
-      <button class="col btn btn-info mx-1">新北市</button>
-      <button class="col btn btn-info mx-1">桃園市</button>
-      <button class="col btn btn-info mx-1">台中市</button>
-      <button class="col btn btn-info mx-1">台南市</button>
-      <button class="col btn btn-info mx-1">高雄市</button>
+    <div class="bar row my-2 mx-0 mx-md-2 mx-xl-5">
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTemp6')">六都均溫預報</button>
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTP')">臺北市</button>
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartNT')">新北市</button>
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTY')">桃園市</button>
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTC')">臺中市</button>
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTN')">臺南市</button>
+      <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartKS')">高雄市</button>
     </div>
   </div>
-  <div class="mx-0 mx-md-3 mx-lg-5">
-    <canvas id="chartTemp6" width="800" height="300"></canvas>
-    <canvas id="chartTP" width="600" height="200"></canvas>
-    <canvas id="chartNT" width="600" height="200"></canvas>
-    <canvas id="chartTY" width="600" height="200"></canvas>
-    <canvas id="chartTC" width="600" height="200"></canvas>
-    <canvas id="chartTN" width="600" height="200"></canvas>
-    <canvas id="chartKS" width="600" height="200"></canvas>
+  <div class="mx-0 mx-md-2 mx-lg-5">
+    <canvas id="chartTemp6" width="500" height="200"></canvas>
+    <canvas id="chartTP" width="500" height="200"></canvas>
+    <canvas id="chartNT" width="500" height="200"></canvas>
+    <canvas id="chartTY" width="500" height="200"></canvas>
+    <canvas id="chartTC" width="500" height="200"></canvas>
+    <canvas id="chartTN" width="500" height="200"></canvas>
+    <canvas id="chartKS" width="500" height="200"></canvas>
   </div>
 
   <script>
 
-    function toggleChart(id) {
-      var x = document.getElementById(id);
-      if (x.style.display === "none") {
-        x.style.display = "block";
-      } else {
-        x.style.display = "none";
+    function toggleCanvas(id) {
+      let x=document.getElementsByTagName('canvas')
+      for(var i=0;i<x.length;i++){
+        x[i].hidden=true
       }
+      document.getElementById(id).hidden=false;
     }
 
     const url1 =
@@ -61,15 +60,16 @@
     const url2 =
       'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON' // 三十六小時天氣預報
 
-    const chartTemp6 = document.getElementById("chartTemp6").getContext("2d");
-    const chartTP = document.getElementById("chartTP").getContext("2d");
-    const chartNT = document.getElementById("chartNT").getContext("2d");
-    const chartTY = document.getElementById("chartTY").getContext("2d");
-    const chartTC = document.getElementById("chartTC").getContext("2d");
-    const chartTN = document.getElementById("chartTN").getContext("2d");
-    const chartKS = document.getElementById("chartKS").getContext("2d");
+    const 
+      chartTemp6 = document.getElementById("chartTemp6").getContext("2d"),
+      chartTP = document.getElementById("chartTP").getContext("2d"),
+      chartNT = document.getElementById("chartNT").getContext("2d"),
+      chartTY = document.getElementById("chartTY").getContext("2d"),
+      chartTC = document.getElementById("chartTC").getContext("2d"),
+      chartTN = document.getElementById("chartTN").getContext("2d"),
+      chartKS = document.getElementById("chartKS").getContext("2d")
 
-    function timeCH(data) {
+    function timeCH(data) { // 時間換成中文
       data = parseInt(data)
       switch (data) {
         case 06:
@@ -87,7 +87,7 @@
       }
     }
 
-    $.ajax({
+    $.ajax({ // 練習做六都圖
       url: url1,
       datatype: "json",
       error: 
@@ -120,28 +120,11 @@
 
             let
               dataAvgT = new Array
-              // dataMinT = new Array,
-              // dataMaxT = new Array
 
             chartDataObj[key].weatherElement[1].time.forEach(e => {
               dataAvgT.push(e.elementValue[0].value) // 將物件中的均溫數值抓出來 轉為陣列
             });
 
-            // chartDataObj[key].weatherElement[8].time.forEach(e => {
-            //   dataMinT.push(e.elementValue[0].value) // 最低溫
-            // });
-
-            // chartDataObj[key].weatherElement[12].time.forEach(e => {
-            //   dataMaxT.push(e.elementValue[0].value) // 最高溫
-            // });
-
-            // let rgba = Math.random()
-            // let colorR = `rgba(${Math.ceil(155*rgba)+100},${Math.ceil(100*rgba)},${Math.ceil(80*rgba)},0.6)`
-            // let colorY =
-            //   `rgba(${Math.ceil(155*rgba)+100},${Math.ceil(155*rgba)+100},${Math.ceil(80*rgba)},1)`
-            // let colorB =
-            //   `rgba(${Math.ceil(50*rgba)},${Math.ceil(60*rgba)},${Math.ceil(155*rgba)+100},0.6)`
-            // console.log(dataAvgT, dataMaxT, dataMinT)
             let 
             color=`${Math.ceil(200*Math.random())+55},${Math.ceil(200*Math.random())+50},${Math.ceil(200*Math.random())+50}`
 
@@ -158,23 +141,6 @@
               borderWidth: 5,
               tension: 0.2
             })
-            // datasetsAvgT.push({
-            //   type: 'line',
-            //   label: chartDataObj[key].locationName + "最高溫",
-            //   data: dataMaxT,
-            //   borderColor: colorR,
-            //   borderDash: [2, 2],
-            //   borderWidth: 2
-            // })
-            // datasetsAvgT.push({
-            //   type: 'line',
-            //   label: chartDataObj[key].locationName + "最低溫",
-            //   data: dataMinT,
-            //   borderColor: colorB,
-            //   borderDash: [2, 2],
-            //   borderWidth: 2
-            // })
-
           }
 
           console.log(datasetsAvgT,minT,maxT)
@@ -208,12 +174,12 @@
         }
     });
 
-    function getChart(chartName,idx){
+    function getChart(chartName,idx){ // 練習各區圖
       fetch(url1)
       .then(re=>re.json())
       .then((data)=>{
+        let locationName=data.records.locations[0].location[idx].locationName
         let rawData=data.records.locations[0].location[idx].weatherElement
-        console.log(rawData)
         let 
           labelX = new Array, // label for X-axis 
           maxT=new Array,
@@ -232,36 +198,32 @@
           rawData[8].time.forEach(e=>{
             minT.push(e.elementValue[0].value)
           })
-          console.log(labelX,maxT,avgT,minT)
-
-          // backgroundColor: `rgba(${color},1)`,
-          //     fill: false,
-          //     borderColor: `rgba(${color},0.6)`,
-          //     borderWidth: 5,
-          //     tension: 0.2
-
 
           let chart=new Chart(chartName,{
             data:{
               datasets: [{
                 type: 'bar',
                 label: '均溫',
-                data: avgT
+                data: avgT,
+                backgroundColor: 'rgba(100,100,80,0.2)',
+                borderColor: 'rgba(100,100,80,0.8)',
+                borderWidth: 0
             }, {
                 type: 'line',
                 label: '最高溫',
                 data: maxT,
-                backgroundColor: 'rgba(255,100,110,1)',
+                backgroundColor: 'rgba(255,100,110,0.5)',
                 borderColor: 'rgba(255,100,110,0.8)',
                 borderDash: [2, 2],
                 borderWidth: 2,
                 tension: 0.2
-            }, {
+              }, {
                 type: 'line',
                 label: '最低溫',
                 data: minT,
+                backgroundColor: 'rgba(105,100,255,0.5)',
                 borderColor: 'rgba(105,100,255,0.8)',
-                borderDash: [2, 5],
+                borderDash: [3, 5],
                 borderWidth: 2
             }],
             labels: labelX
@@ -274,7 +236,7 @@
                 },
                 title: {
                   display: true, // 顯示圖表名稱
-                  text: '一週氣溫預報'
+                  text: locationName+'一週氣溫預報'
                 }
               },
               scale:{
@@ -287,6 +249,12 @@
           })
       })
     }
+    getChart('chartTP',9)
+    getChart('chartNT',3)
+    getChart('chartTY',13)
+    getChart('chartTC',20)
+    getChart('chartTN',6)
+    getChart('chartKS',7)
 
   </script>
 
