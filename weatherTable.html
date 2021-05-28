@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>36小時天氣預報</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        table{
+            border: 1px solid gray;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        thead{
+            font-weight: 800;
+            background: #ddd;
+        }
+        td{
+            padding: 15px 25px;
+            border: 3px solid gray;
+            text-align: center;
+        }
+        td>img{
+            margin: 2px;
+            width: 40px;
+            height: 40px;
+            box-shadow: 0 0 5px 0 #ddd;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>36小時天氣預報</h1>
+    <table>
+        <thead>
+            <tr>
+                <td>編號</td>
+                <td>城市</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <script>
+        let data;
+
+        $.getJSON('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON')
+        .done(re=>{
+            console.log(re)
+            data=re.records.location
+
+            header1=data[0].weatherElement[0].time[0].startTime.split(" ")
+            header2=data[0].weatherElement[0].time[1].startTime.split(" ")
+            header3=data[0].weatherElement[0].time[2].startTime.split(" ")
+
+            $("thead").find("td").eq(2).text(`${header1[0]} ${title(header1[1].substr(0,2))}`)
+            $("thead").find("td").eq(3).text(`${header2[0]} ${title(header2[1].substr(0,2))}`)
+            $("thead").find("td").eq(4).text(`${header3[0]} ${title(header3[1].substr(0,2))}`)
+
+            function imgFolder(head){
+                hr=parseInt(head[1].substr(0,2))
+                switch (hr){
+                    case 0: return "img/night/" 
+                    break;
+                    case 6: return "img/day/"
+                    break;
+                    case 12: return "img/day/"
+                    break;
+                    case 18: return "img/night/"
+                    break;
+                }
+            }
+
+            let path1=imgFolder(header1),
+            path2=imgFolder(header2),
+            path3=imgFolder(header3);
+
+            for(let i=0; i<data.length; i++){
+                row=data[i]
+                date=row.weatherElement[0].time[0].startTime
+                hr=date.split(" ")[1].substr(0,2) // hour
+                img=row.weatherElement[0].time[0].parameter.parameterValue // img
+                code=`<tr><td>${i+1}</td><td>${row.locationName}</td><td><img src='${path1}${img}.svg'><br>${row.weatherElement[0].time[0].parameter.parameterName}<hr>${row.weatherElement[2].time[0].parameter.parameterName}~${row.weatherElement[4].time[0].parameter.parameterName}˚C</td><td><img src='${path2}${img}.svg'><br>${row.weatherElement[0].time[1].parameter.parameterName}<hr>${row.weatherElement[2].time[1].parameter.parameterName}~${row.weatherElement[4].time[1].parameter.parameterName}˚C</td><td><img src='${path3}${img}.svg'><br>${row.weatherElement[0].time[2].parameter.parameterName}<hr>${row.weatherElement[2].time[2].parameter.parameterName}~${row.weatherElement[4].time[2].parameter.parameterName}˚C</td></tr>`
+                $("tbody").append(code)
+            }
+            
+            function title(hr){
+                hr=parseInt(hr)
+                switch (hr){
+                    case 0: return "凌晨";
+                    break;
+                    case 6: return "早上";
+                    break;
+                    case 12: return "下午";
+                    break;
+                    case 18: return "晚上";
+                    break;
+                }
+            }
+
+            
+
+        });
+
+    </script>
+</body>
+</html>
