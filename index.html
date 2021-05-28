@@ -26,7 +26,7 @@
   <h1 class="font-weight-bolder text-center text-dark p-2">六都天氣預測資料</h1>
   <h3 class="font-weight-bolder text-center text-secondary p-2">各地均溫預報</h3>
 
-  <canvas id="chartTemp" width="800" height="500"></canvas>
+  <canvas id="chartTemp" width="800" height="300"></canvas>
   <hr>
   <canvas id="chartTP" width="100" height="50"></canvas>
 
@@ -78,8 +78,8 @@
           let
             datasetsAvgT = new Array, // 均溫datasets陣列, 內含各組dataset物件
             labelX = new Array, // label for X-axis 
-            maxT,
-            minT
+            maxT= new Array,
+            minT= new Array
 
           chartDataObj.TP.weatherElement[1].time.forEach(e => {
             labelX.push(e.startTime.substr(5, 5) + " " + timeCH(e.startTime.substr(11, 2)))
@@ -114,9 +114,8 @@
             let 
             color=`${Math.ceil(200*Math.random())+55},${Math.ceil(200*Math.random())+50},${Math.ceil(200*Math.random())+50}`
 
-            maxT=Math.max(...dataAvgT)+2,
-            minT=Math.min(...dataAvgT)-2
-            console.log(maxT,minT)
+            maxT.push(Math.max(...dataAvgT)+1)
+            minT.push(Math.min(...dataAvgT)-1)
 
             datasetsAvgT.push({
               type: 'line',
@@ -126,7 +125,7 @@
               fill: false,
               borderColor: `rgba(${color},0.6)`,
               borderWidth: 5,
-              tension: 0.3
+              tension: 0.2
             })
             // datasetsAvgT.push({
             //   type: 'line',
@@ -147,7 +146,7 @@
 
           }
 
-          console.log(datasetsAvgT)
+          console.log(datasetsAvgT,minT,maxT)
 
           var chartT=new Chart(chartTemp, {
             type: 'line', // 圖表呈現類型
@@ -166,19 +165,14 @@
                   display: true, // 顯示圖表名稱
                   text: '六都均溫預測'
                 }
-              }
+              },
+              scale:{
+                y:{
+                  min:Math.min(...minT),
+                  max:Math.max(...maxT),
+                }
+              },
             },
-            // ,
-            // options: {
-            //   scales: {
-            //     yAxes: [{ // Y軸參數
-            //       ticks: {
-            //         min: minTmp,
-            //         max: maxTmp
-            //       }
-            //     }]
-            //   }
-            // }
           });
         }
     })
