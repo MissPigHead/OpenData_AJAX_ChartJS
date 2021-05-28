@@ -1,10 +1,4 @@
 body{
-  background: linear-gradient(to right top, #ecc0d9, #e6c3e1, #dfc6e7, #d7c9ec, #cfccf0, #c7d0f4, #bfd4f6, #b8d8f6, #b2ddf5, #afe2f1, #afe6ec, #b4e9e6);
-  /* background-image: linear-gradient(to right top, #ed93c6, #e29ad5, #d5a2e1, #c6aaeb, #b7b1f1, #a6b8f5, #96bef7, #88c3f5, #78c9f0, #71cee7, #73d2dc, #7dd4cf); */
-  /* background-image: radial-gradient( circle 592px at 48.2% 50%,  rgba(255,255,249,0.6) 0%, rgba(160,199,254,1) 74.6% ); */
-  /* background-image: linear-gradient( 179.4deg,  rgba(253,240,233,1) 2.2%, rgba(255,194,203,1) 96.2% ); */
-}
-canvas{
-  display: none;
-  margin: 2rem 0.5rem;
+  min-height: 100vh;
+  background: linear-gradient(to right top, #ecc0d9, #e6c3e1, #dfc6e7, #d7c9ec, #cfccf0, #c7d0f4, #bfd4f6, #b8d8f6, #b2ddf5, #afe2f1, #afe6ec, #b4e9e6) no-repeat;
 }

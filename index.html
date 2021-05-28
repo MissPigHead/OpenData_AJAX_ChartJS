@@ -22,10 +22,10 @@
 </head>
 
 <body>
-  <h1 class="font-weight-bolder text-center text-dark m-3">六都天氣預測資料</h1>
-  <h3 class="font-weight-bolder text-center text-secondary m-2">各地一週氣溫預報</h3>
+  <h1 class="font-weight-bolder text-center text-black-50 m-3">天氣預測資料</h1>
+  <h3 class="font-weight-bolder text-center text-secondary m-3">六都一週氣溫預報圖</h3>
   <div class="container">
-    <div class="bar row my-2 mx-0 mx-md-2 mx-xl-5">
+    <div class="bar row my-2 my-lg-4 mx-0 mx-md-2 mx-xl-5">
       <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTemp6')">六都均溫預報</button>
       <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTP')">臺北市</button>
       <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartNT')">新北市</button>
@@ -34,16 +34,16 @@
       <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartTN')">臺南市</button>
       <button class="col btn btn-info mx-1" onclick="toggleCanvas('chartKS')">高雄市</button>
     </div>
-  </div>
-  <div class="mx-0 mx-md-2 mx-lg-5">
-    <canvas id="chartTemp6" width="500" height="200"></canvas>
-    <canvas id="chartTP" width="500" height="200"></canvas>
-    <canvas id="chartNT" width="500" height="200"></canvas>
-    <canvas id="chartTY" width="500" height="200"></canvas>
-    <canvas id="chartTC" width="500" height="200"></canvas>
-    <canvas id="chartTN" width="500" height="200"></canvas>
-    <canvas id="chartKS" width="500" height="200"></canvas>
-  </div>
+    <div class="mx-0 mx-md-2 mx-lg-5">
+      <canvas id="chartTemp6" width="500" height="300"></canvas>
+      <canvas id="chartTP" width="500" height="300"></canvas>
+      <canvas id="chartNT" width="500" height="300"></canvas>
+      <canvas id="chartTY" width="500" height="300"></canvas>
+      <canvas id="chartTC" width="500" height="300"></canvas>
+      <canvas id="chartTN" width="500" height="300"></canvas>
+      <canvas id="chartKS" width="500" height="300"></canvas>
+    </div>
+  </div>  
 
   <script>
 
@@ -255,7 +255,7 @@
     getChart('chartTC',20)
     getChart('chartTN',6)
     getChart('chartKS',7)
-
+    toggleCanvas('chartTemp6')
   </script>
 
 
