@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,35 +8,53 @@
   <title>天氣預測-AJAX-Chart.js</title>
   <link rel="icon" href="img/favicon.ico">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css"/>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.css" />
   <link rel="stylesheet" href="css/custom.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- auto Search Bar / Pages -->
   <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.23/datatables.min.js"></script>
   <!-- auto Chart -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>.
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script> -->
 </head>
+
 <body>
-  <h1>六都天氣預測資料</h1>
-  <canvas id="chartData" width="800" height="200"></canvas>
+  <h1 class="font-weight-bolder text-center text-dark p-2">六都天氣預測資料</h1>
+  <h3 class="font-weight-bolder text-center text-secondary p-2">各地均溫預報</h3>
+
+  <canvas id="chartTemp" width="800" height="500"></canvas>
   <hr>
-  <canvas id="chartTP" width="800" height="200"></canvas>
+  <canvas id="chartTP" width="100" height="50"></canvas>
 
-  <script> 
-  //ajax叫回資料
-    const url1='https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-D0047-091?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON' // 臺灣各縣市鄉鎮未來1週逐12小時天氣預報
-    const url2='https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON' // 三十六小時天氣預報
+  <script>
+    const url1 =
+      'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-D0047-091?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON' // 臺灣各縣市鄉鎮未來1週逐12小時天氣預報
+    const url2 =
+      'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON' // 三十六小時天氣預報
 
-    let 
-    datasetsAvgT=new Array, // 均溫datasets陣列, 內含各組dataset物件
-    datasetsMinT=new Array, // 最低溫datasets陣列, 內含各組dataset物件
-    datasetsMaxT=new Array, // 最高溫datasets陣列, 內含各組dataset物件
-    dataAvgT=new Array,
-    dataMinT=new Array,
-    dataMaxT=new Array
+    const chartTemp = document.getElementById("chartTemp").getContext("2d");
 
+    function timeCH(data) {
+      data = parseInt(data)
+      switch (data) {
+        case 06:
+          return "早上"
+          break;
+        case 12:
+          return "中午"
+          break;
+        case 18:
+          return "晚上"
+          break;
+        case 00:
+          return "凌晨"
+          break;
+      }
+    }
 
     $.ajax({
       url: url1,
@@ -46,232 +65,126 @@
           console.error()
         },
       success: 
-        function(re){
-          // console.log(re.records.locations[0].location)
-          let rawData=re.records.locations[0].location // 各地預報資訊
+        function (re) {
+          let chartDataObj = new Object; 
+          let rawData = re.records.locations[0].location // 各地預報資訊
+          chartDataObj.TP = rawData[9] // 台北市
+          chartDataObj.NT = rawData[3] // 新北市
+          chartDataObj.TY = rawData[13] // 桃園市
+          chartDataObj.TC = rawData[20] // 台中市
+          chartDataObj.TN = rawData[6] // 台南市
+          chartDataObj.KS = rawData[7] // 高雄市
 
-          let chartDataObj=new Object; // weatherElement [0]降雨率 [1]平均溫度 
-          chartDataObj.TP=rawData[9] // 台北市
-          chartDataObj.NT=rawData[3] // 新北市
-          // chartDataObj.TY=rawData[13] // 桃園市
-          chartDataObj.TC=rawData[20] // 台中市
-          // chartDataObj.TN=rawData[6] // 台南市
-          chartDataObj.KS=rawData[7] // 高雄市
+          let
+            datasetsAvgT = new Array, // 均溫datasets陣列, 內含各組dataset物件
+            labelX = new Array, // label for X-axis 
+            maxT,
+            minT
 
+          chartDataObj.TP.weatherElement[1].time.forEach(e => {
+            labelX.push(e.startTime.substr(5, 5) + " " + timeCH(e.startTime.substr(11, 2)))
+          });
 
           for (const key in chartDataObj) { // key => TP, NT, TY....
-            // chartDataObj[key].locationName // 台北市, 新北市...
-            // chartDataObj[key].weatherElement[1] // "平均溫度"
-            // chartDataObj[key].weatherElement[2] // "平均相對濕度"
-            // chartDataObj[key].weatherElement[8] // "最低溫度"
-            // chartDataObj[key].weatherElement[12] // "最高溫度"
+
+            let
+              dataAvgT = new Array
+              // dataMinT = new Array,
+              // dataMaxT = new Array
 
             chartDataObj[key].weatherElement[1].time.forEach(e => {
-              dataAvgT.push(e.elementValue[0].value)
+              dataAvgT.push(e.elementValue[0].value) // 將物件中的均溫數值抓出來 轉為陣列
             });
 
-            chartDataObj[key].weatherElement[8].time.forEach(e => {
-              dataMinT.push(e.elementValue[0].value)
-            });
+            // chartDataObj[key].weatherElement[8].time.forEach(e => {
+            //   dataMinT.push(e.elementValue[0].value) // 最低溫
+            // });
 
-            chartDataObj[key].weatherElement[12].time.forEach(e => {
-              dataMaxT.push(e.elementValue[0].value)
-            });
-            let rgba=Math.random()
-            let colorR=`ragb(${Math.ceil(255*rgba)},${Math.ceil(100*rgba)},${Math.ceil(80*rgba)},0.${Math.ceil(10*rgba)})`
-            let colorY=`ragb(${Math.ceil(255*rgba)},${Math.ceil(255*rgba)},${Math.ceil(80*rgba)},0.${Math.ceil(10*rgba)})`
-            let colorB=`ragb(${Math.ceil(50*rgba)},${Math.ceil(60*rgba)},${Math.ceil(255*rgba)},0.${Math.ceil(10*rgba)})`
+            // chartDataObj[key].weatherElement[12].time.forEach(e => {
+            //   dataMaxT.push(e.elementValue[0].value) // 最高溫
+            // });
+
+            // let rgba = Math.random()
+            // let colorR = `rgba(${Math.ceil(155*rgba)+100},${Math.ceil(100*rgba)},${Math.ceil(80*rgba)},0.6)`
+            // let colorY =
+            //   `rgba(${Math.ceil(155*rgba)+100},${Math.ceil(155*rgba)+100},${Math.ceil(80*rgba)},1)`
+            // let colorB =
+            //   `rgba(${Math.ceil(50*rgba)},${Math.ceil(60*rgba)},${Math.ceil(155*rgba)+100},0.6)`
+            // console.log(dataAvgT, dataMaxT, dataMinT)
+            let 
+            color=`${Math.ceil(200*Math.random())+55},${Math.ceil(200*Math.random())+50},${Math.ceil(200*Math.random())+50}`
+
+            maxT=Math.max(...dataAvgT)+2,
+            minT=Math.min(...dataAvgT)-2
+            console.log(maxT,minT)
 
             datasetsAvgT.push({
-              type:'bar',
-              label: chartDataObj[key].locationName,
+              type: 'line',
+              label: chartDataObj[key].locationName + "均溫",
               data: dataAvgT,
-              borderColor: colorY,
-              borderWidth: 5
+              backgroundColor: `rgba(${color},1)`,
+              fill: false,
+              borderColor: `rgba(${color},0.6)`,
+              borderWidth: 5,
+              tension: 0.3
             })
-            datasetsAvgT.push({
-              type:'line',
-              label: chartDataObj[key].locationName,
-              data: dataMaxT,
-              borderColor: colorR,
-              borderWidth: 5
-            })
-            datasetsAvgT.push({
-              type:'line',
-              label: chartDataObj[key].locationName,
-              data: dataMaxT,
-              borderColor: colorB,
-              borderWidth: 5
-            })
+            // datasetsAvgT.push({
+            //   type: 'line',
+            //   label: chartDataObj[key].locationName + "最高溫",
+            //   data: dataMaxT,
+            //   borderColor: colorR,
+            //   borderDash: [2, 2],
+            //   borderWidth: 2
+            // })
+            // datasetsAvgT.push({
+            //   type: 'line',
+            //   label: chartDataObj[key].locationName + "最低溫",
+            //   data: dataMinT,
+            //   borderColor: colorB,
+            //   borderDash: [2, 2],
+            //   borderWidth: 2
+            // })
 
           }
 
           console.log(datasetsAvgT)
 
+          var chartT=new Chart(chartTemp, {
+            type: 'line', // 圖表呈現類型
+            data: { // 圖表資料
+              datasets: datasetsAvgT, // Y軸-資料 
+              labels: labelX // X軸-標籤
+
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'bottom', // 圖標說明位置
+                },
+                title: {
+                  display: true, // 顯示圖表名稱
+                  text: '六都均溫預測'
+                }
+              }
+            },
+            // ,
+            // options: {
+            //   scales: {
+            //     yAxes: [{ // Y軸參數
+            //       ticks: {
+            //         min: minTmp,
+            //         max: maxTmp
+            //       }
+            //     }]
+            //   }
+            // }
+          });
         }
     })
-
-
-
-    function doChart(canvasID,data){
-      let chart = document.getElementById(canvasID).getContext("2d");
-
-      new Chart(chart,{
-        type: 'line', // 圖表呈現類型
-        data: { // 圖表資料
-            labels: dataChart(TP)[1], // X軸-標籤
-            datasets: 
-            [{ // Y軸-資料
-                label: dataChart(TP)[0],
-                data: dataChart(TP)[2],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 5
-            },
-            {
-                label: dataChart(NT)[0],
-                data: dataChart(NT)[2],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 5
-            },
-            {
-                label: dataChart(KL)[0],
-                data: dataChart(KL)[2],
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                borderColor: 'rgba(255, 206, 86, 1)',
-                borderWidth: 5
-            },
-            {
-                label: dataChart(TY)[0],
-                data: dataChart(TY)[2],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 5
-            }
-            ]
-        },
-        options: {
-            scales: {
-                yAxes: [{ // Y軸參數
-                    ticks: {
-                        min: minTmp,
-                        max: maxTmp
-                    }
-                }]
-            }
-        }
-      })
-    }
-
-  // Chart.js 繪製 
-    // let cts=document.getElementById("myChart").getContext("2d")
-    // let myChart= new Chart(cts,{
-      // })
-
-
-    const ctTP = document.getElementById("chartTP").getContext("2d");
-
-    let TP, NT, KL, TY;
-
-
-    function title(hr) {
-        hr = parseInt(hr)
-        switch (hr) {
-            case 0:
-                return "凌晨";
-                break;
-            case 6:
-                return "早上";
-                break;
-            case 12:
-                return "下午";
-                break;
-            case 18:
-                return "晚上";
-                break;
-        }
-    }
-
-    $.getJSON(
-        'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-D0047-091?Authorization=CWB-213C74B4-130A-4D6D-8A0B-CCA8B320FF4A&format=JSON'
-    )
-        .done(re => {
-            // console.log(re)
-
-            TP = re.records.locations[0].location[9] // Taipei
-            NT = re.records.locations[0].location[15] // New Taipei
-            KL = re.records.locations[0].location[16] // Keelung
-            TY = re.records.locations[0].location[19] // Taoyuan
-
-            function dataChart(data) {
-                let ary = [data.locationName],
-                    tmp1 = [],
-                    tmp2 = [];
-
-                data.weatherElement[1].time.forEach((e, idx) => {
-                    tmp1[idx] = e.startTime.substr(5, 5) + title(e.startTime.substr(11, 2))
-                    tmp2[idx] = parseInt(e.elementValue[0].value)
-                });
-                ary[1] = tmp1;
-                ary[2] = tmp2;
-                return ary; // 地點, 時間, 溫度
-            }
-
-            let maxTmp=Math.max(Math.max(...dataChart(TP)[2]),Math.max(...dataChart(NT)[2]),Math.max(...dataChart(KL)[2]),Math.max(...dataChart(TY)[2]))+2
-            let minTmp=Math.min(Math.min(...dataChart(TP)[2]),Math.min(...dataChart(NT)[2]),Math.min(...dataChart(KL)[2]),Math.min(...dataChart(TY)[2]))-2
-
-            new Chart(ctTP, {
-                type: 'line', // 圖表呈現類型
-                data: { // 圖表資料
-                    labels: dataChart(TP)[1], // X軸-標籤
-                    datasets: 
-                    [{ // Y軸-資料
-                        label: dataChart(TP)[0],
-                        data: dataChart(TP)[2],
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 5
-                    },
-                    {
-                        label: dataChart(NT)[0],
-                        data: dataChart(NT)[2],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 5
-                    },
-                    {
-                        label: dataChart(KL)[0],
-                        data: dataChart(KL)[2],
-                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                        borderColor: 'rgba(255, 206, 86, 1)',
-                        borderWidth: 5
-                    },
-                    {
-                        label: dataChart(TY)[0],
-                        data: dataChart(TY)[2],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 5
-                    }
-                    ]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{ // Y軸參數
-                            ticks: {
-                                min: minTmp,
-                                max: maxTmp
-                            }
-                        }]
-                    }
-                }
-            });
-        }).fail(() => {
-            console.log("api connection fail!")
-        });
-</script>
+  </script>
 
 
 </body>
+
 </html>
